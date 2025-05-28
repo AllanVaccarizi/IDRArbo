@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Growth.ai - Créateur d'arborescence</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton+SC:wght@400&family=Archivo:wght@300;400;500;600;700&display=swap">
+    <link rel="icon" type="image/png" href="https://cdn.prod.website-files.com/6825df5b20329ba581df4914/6825e1130589c0001e20fe4c_relume-143542.png">
+    <link rel="shortcut icon" type="image/png" href="https://cdn.prod.website-files.com/6825df5b20329ba581df4914/6825e1130589c0001e20fe4c_relume-143542.png">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Archivo', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            background: linear-gradient(135deg, #1B1919 0%, #FF8000 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            max-width: 800px;
+        }
+
+        .logo {
+            width: 120px;
+            height: 120px;
+            margin-bottom: 20px;
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        .title {
+            font-family: 'Anton SC', sans-serif;
+            font-size: 2.5rem;
+            font-weight: 400;
+            color: #ffffff;
+            margin-bottom: 15px;
+            line-height: 1.2;
+            text-transform: uppercase;
+        }
+
+        .subtitle {
+            font-family: 'Archivo', sans-serif;
+            font-size: 1.2rem;
+            color: #ffffff;
+            font-weight: 400;
+            max-width: 600px;
+            margin: 0 auto;
+            opacity: 0.9;
+        }
+
+        .chat-container {
+            width: 100%;
+            max-width: 800px;
+            height: 600px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .chat-header {
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+            color: white;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .chat-header-logo {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            background: white;
+            padding: 5px;
+        }
+
+        .chat-header-info h3 {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .chat-header-info p {
+            font-size: 0.95rem;
+            opacity: 0.9;
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            background: #fafbfc;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .message {
+            max-width: 80%;
+            padding: 15px 20px;
+            border-radius: 18px;
+            font-size: 15px;
+            line-height: 1.5;
+            position: relative;
+        }
+
+        .message.bot {
+            background: #1B1919;
+            color: #ffffff;
+            align-self: flex-start;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            margin-left: 50px;
+        }
+
+        .message.bot a {
+            color: #FF8000;
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.3s ease;
+        }
+
+        .message.bot a:hover {
+            color: #E7BF26;
+            text-decoration: underline;
+        }
+
+        .message.bot::before {
+            content: '';
+            position: absolute;
+            left: -40px;
+            top: 10px;
+            width: 35px;
+            height: 35px;
+            background-color: #1B1919;
+            background-image: url('https://cdn.prod.website-files.com/6825df5b20329ba581df4914/6825e1130589c0001e20fe4c_relume-143542.png');
+            background-size: cover;
+            background-position: center;
+            border-radius: 50%;
+            border: 2px solid #FF8000;
+        }
+
+        .message.user {
+            background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+            color: white;
+            align-self: flex-end;
+            box-shadow: 0 4px 12px rgba(243, 156, 18, 0.3);
+        }
+
+        .chat-input-container {
+            padding: 20px;
+            background: white;
+            border-top: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .chat-input {
+            display: flex;
+            gap: 15px;
+            align-items: flex-end;
+        }
+
+        .chat-input textarea {
+            flex: 1;
+            padding: 15px 20px;
+            border: 2px solid #E7BF26;
+            border-radius: 25px;
+            font-family: 'Archivo', sans-serif;
+            font-size: 15px;
+            resize: none;
+            min-height: 50px;
+            max-height: 120px;
+            background: #f8f9fa;
+            color: #1B1919;
+            transition: border-color 0.3s ease;
+            overflow-y: hidden;
+        }
+
+        .chat-input textarea:focus {
+            outline: none;
+            border-color: #FF8000;
+            background: white;
+        }
+
+        .chat-input textarea::placeholder {
+            color: #95a5a6;
+        }
+
+        .send-button {
+            width: 50px;
+            height: 50px;
+            border: none;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #FF8000 0%, #E7BF26 100%);
+            color: #1B1919;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            box-shadow: 0 4px 12px rgba(255, 128, 0, 0.3);
+        }
+
+        .send-button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 20px rgba(255, 128, 0, 0.4);
+        }
+
+        .send-button:active {
+            transform: scale(0.95);
+        }
+
+        .typing-indicator {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 15px 20px;
+            background: #1B1919;
+            color: #ffffff;
+            border-radius: 18px;
+            align-self: flex-start;
+            margin-left: 50px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .typing-indicator::before {
+            content: '';
+            position: absolute;
+            left: -40px;
+            top: 10px;
+            width: 35px;
+            height: 35px;
+            background-color: #1B1919;
+            background-image: url('https://cdn.prod.website-files.com/6825df5b20329ba581df4914/6825e1130589c0001e20fe4c_relume-143542.png');
+            background-size: cover;
+            background-position: center;
+            border-radius: 50%;
+            border: 2px solid #3498db;
+        }
+
+        .typing-dots {
+            display: flex;
+            gap: 4px;
+        }
+
+        .typing-dots span {
+            width: 8px;
+            height: 8px;
+            background: #FF8000;
+            border-radius: 50%;
+            animation: typing 1.4s infinite ease-in-out;
+        }
+
+        .typing-dots span:nth-child(1) { animation-delay: -0.32s; }
+        .typing-dots span:nth-child(2) { animation-delay: -0.16s; }
+
+        @keyframes typing {
+            0%, 80%, 100% {
+                transform: scale(0.8);
+                opacity: 0.5;
+            }
+            40% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .warning {
+            background: linear-gradient(135deg, #FF8000 0%, #E7BF26 100%);
+            color: #1B1919;
+            padding: 15px 20px;
+            border-radius: 12px;
+            margin-top: 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            box-shadow: 0 4px 15px rgba(255, 128, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            font-size: 16px;
+            font-weight: 500;
+            font-family: 'Archivo', sans-serif;
+        }
+
+        .warning svg {
+            flex-shrink: 0;
+            opacity: 0.9;
+        }
+
+        .footer {
+            margin-top: 40px;
+            text-align: center;
+            color: #ffffff;
+            font-size: 14px;
+            font-family: 'Archivo', sans-serif;
+        }
+
+        .footer a {
+            color: #1B1919;
+            text-decoration: none;
+            font-weight: 500;
+            background: linear-gradient(135deg, #FF8000 0%, #E7BF26 100%);
+            padding: 4px 8px;
+            border-radius: 6px;
+            transition: all 0.3s ease;
+        }
+
+        .footer a:hover {
+            background: #E7BF26;
+            text-decoration: underline;
+            transform: translateY(-1px);
+        }
+
+        @media (max-width: 768px) {
+            .title {
+                font-size: 2rem;
+            }
+            
+            .chat-container {
+                height: 500px;
+                margin: 0 10px;
+            }
+            
+            .message {
+                max-width: 90%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <img src="https://cdn.prod.website-files.com/6825df5b20329ba581df4914/6825e1130589c0001e20fe4c_relume-143542.png" alt="Growth.ai" class="logo">
+        <h1 class="title">Créez votre arborescence de site en quelques clics !</h1>
+        <p class="subtitle">Notre agent intelligent analyse votre site web et génère automatiquement une arborescence complète au format Google Sheets</p>
+        <div class="warning">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 9V13M12 17H12.01M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <span><strong>⚠️ Service limité :</strong> L'agent fonctionne pour les 500 premières analyses seulement !</span>
+        </div>
+    </div>
+
+    <div class="chat-container">
+        <div class="chat-header">
+            <div class="chat-header-info">
+                <h3>Agent Arborescence Growth.ai</h3>
+                <p>Votre assistant pour l'analyse de site web</p>
+            </div>
+        </div>
+
+        <div class="chat-messages" id="chatMessages">
+            <div class="message bot">
+                <strong>Bienvenu sur notre agent de création d'arborescence !</strong><br><br>
+                Envoyez votre URL et votre agent s'occupera de générer une arborescence sous format google sheet<br><br>
+                Si vous souhaitez automatisez vos process faites appels à <a href="https://growth.ai" target="_blank">Growth.ai</a>
+            </div>
+        </div>
+
+        <div class="chat-input-container">
+            <div class="chat-input">
+                <textarea id="messageInput" placeholder="Collez votre URL ici..." rows="1"></textarea>
+                <button class="send-button" id="sendButton">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M22 2L11 13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M22 2L15 22L11 13L2 9L22 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer">
+        <p>Propulsé par <a href="https://growth.ai" target="_blank">Growth.ai</a></p>
+    </div>
+
+    <script>
+        // Configuration du Chat Trigger N8N
+        const config = {
+            webhook: {
+                url: "https://n8n.srv749948.hstgr.cloud/webhook/b04d08ba-095d-4d84-b67c-ce886828c2a3/chat"
+            }
+        };
+
+        let currentSessionId = '';
+        const messagesContainer = document.getElementById('chatMessages');
+        const messageInput = document.getElementById('messageInput');
+        const sendButton = document.getElementById('sendButton');
+
+        // Générer un UUID pour la session
+        function generateUUID() {
+            return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+                const r = Math.random() * 16 | 0;
+                const v = c == 'x' ? r : (r & 0x3 | 0x8);
+                return v.toString(16);
+            });
+        }
+
+        // Initialiser la session
+        function initializeSession() {
+            currentSessionId = generateUUID();
+        }
+
+        // Ajouter un message au chat
+        function addMessage(content, isUser = false) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${isUser ? 'user' : 'bot'}`;
+            
+            if (typeof content === 'string') {
+                messageDiv.innerHTML = content;
+            } else {
+                messageDiv.textContent = content;
+            }
+            
+            messagesContainer.appendChild(messageDiv);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+
+        // Afficher l'indicateur de frappe
+        function showTypingIndicator() {
+            const typingDiv = document.createElement('div');
+            typingDiv.className = 'typing-indicator';
+            typingDiv.id = 'typingIndicator';
+            typingDiv.innerHTML = `
+                <div class="typing-dots">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+            `;
+            messagesContainer.appendChild(typingDiv);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+
+        // Supprimer l'indicateur de frappe
+        function hideTypingIndicator() {
+            const typingIndicator = document.getElementById('typingIndicator');
+            if (typingIndicator) {
+                typingIndicator.remove();
+            }
+        }
+
+        // Envoyer un message
+        async function sendMessage(message) {
+            if (!message.trim()) return;
+
+            // Ajouter le message utilisateur
+            addMessage(message, true);
+            
+            // Vider le champ de saisie
+            messageInput.value = '';
+            
+            // Afficher l'indicateur de frappe
+            showTypingIndicator();
+
+            try {
+                // Structure spécifique pour Chat Trigger N8N
+                const messageData = {
+                    chatInput: message,
+                    sessionId: currentSessionId
+                };
+
+                console.log('Envoi des données:', messageData);
+
+                const response = await fetch(config.webhook.url, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(messageData)
+                });
+
+                console.log('Status de la réponse:', response.status);
+                
+                if (!response.ok) {
+                    throw new Error(`Erreur HTTP: ${response.status}`);
+                }
+
+                const data = await response.json();
+                console.log('Données reçues:', data);
+                
+                // Supprimer l'indicateur de frappe
+                hideTypingIndicator();
+                
+                // Récupérer la réponse - le Chat Trigger renvoie directement le texte
+                let responseText = '';
+                
+                if (typeof data === 'string') {
+                    responseText = data;
+                } else if (data.text) {
+                    responseText = data.text;
+                } else if (data.output) {
+                    responseText = data.output;
+                } else if (data.message) {
+                    responseText = data.message;
+                } else {
+                    responseText = "Arborescence en cours de génération...";
+                }
+                
+                if (responseText) {
+                    // Convertir les liens markdown en HTML
+                    responseText = responseText.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank">$1</a>');
+                    
+                    // Traiter les sauts de ligne
+                    responseText = responseText.replace(/\\n/g, '<br>');
+                    responseText = responseText.replace(/\n/g, '<br>');
+                    
+                    addMessage(responseText);
+                } else {
+                    addMessage("Votre demande est en cours de traitement. L'arborescence sera générée sous peu.");
+                }
+                
+            } catch (error) {
+                console.error('Erreur détaillée:', error);
+                hideTypingIndicator();
+                
+                // Message d'erreur plus informatif
+                addMessage(`Une erreur est survenue lors de la communication avec le serveur. Veuillez vérifier que l'URL est correcte et réessayer.<br><br><em>Détails techniques: ${error.message}</em>`);
+            }
+        }
+
+        // Gérer l'envoi du message
+        sendButton.addEventListener('click', () => {
+            sendMessage(messageInput.value);
+        });
+
+        // Gérer la touche Entrée
+        messageInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage(messageInput.value);
+            }
+        });
+
+        // Auto-resize du textarea
+        messageInput.addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+        });
+
+        // Initialiser la session au chargement
+        initializeSession();
+    </script>
+</body>
+</html>
